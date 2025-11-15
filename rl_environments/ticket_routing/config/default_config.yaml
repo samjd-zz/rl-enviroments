@@ -1,0 +1,41 @@
+# Default Configuration for Support Ticket Routing RL Environment
+
+# Environment settings
+environment:
+  num_agents: 5          # Number of support agents
+  episode_length: 1000   # Maximum steps per episode (1000 steps = 1 day)
+  max_queue_size: 50     # Maximum size of ticket queue
+
+# Ticket generation settings
+ticket:
+  arrival_rate: 50.0     # Average tickets per day
+  
+  # Distribution of ticket types (must sum to 1.0)
+  type_distribution:
+    technical: 0.30      # 30% technical issues
+    billing: 0.25        # 25% billing questions
+    feature: 0.20        # 20% feature requests
+    bug: 0.15            # 15% bug reports
+    integration: 0.10    # 10% integration issues
+  
+  # Distribution of priorities (must sum to 1.0)
+  priority_distribution:
+    critical: 0.05       # 5% critical priority
+    high: 0.15           # 15% high priority
+    medium: 0.50         # 50% medium priority
+    low: 0.30            # 30% low priority
+
+# Agent settings
+agent:
+  max_capacity: 10       # Maximum concurrent tickets per agent
+  expertise_range:       # Range for random expertise initialization
+    - 0.3                # Minimum expertise level
+    - 0.9                # Maximum expertise level
+
+# Reward function settings
+reward:
+  base_reward: 10.0                    # Base reward for valid assignment
+  expertise_multiplier: 5.0            # Multiplier for expertise bonus
+  resolution_penalty_rate: 0.1         # Rate for resolution time penalty
+  workload_threshold: 2.0              # Std dev threshold for workload balance
+  workload_penalty: 5.0                # Penalty for imbalanced workload

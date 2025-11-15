@@ -1,0 +1,191 @@
+# Cline Rules for RL Environments Project
+
+## Project Overview
+This project implements Gymnasium-compliant reinforcement learning environments, starting with a Support Ticket Routing environment for B2B SaaS applications.
+
+## Development Standards
+
+### Code Quality
+- Use Python 3.8+ features
+- Full type hints required (mypy --strict compliance)
+- Code formatting with black (line length: 100)
+- Linting with ruff
+- Docstrings for all public methods (Google style)
+
+### Testing Requirements
+- Minimum 90% test coverage
+- Unit tests for all components
+- Integration tests for environment
+- Property-based tests with hypothesis
+- Performance benchmarks (< 1ms per step)
+
+### Gymnasium API Compliance
+- All environments must extend `gymnasium.Env`
+- Implement required methods: `reset()`, `step()`, `render()`, `close()`
+- Pass `gymnasium.utils.env_checker.check_env()` validation
+- Support seeding for reproducibility
+- Return proper tuple formats:
+  - `reset()`: (observation, info)
+  - `step()`: (observation, reward, terminated, truncated, info)
+
+### File Organization
+- Core components in `rl_environments/[env_name]/core/`
+- Utilities in `rl_environments/[env_name]/utils/`
+- Tests in `rl_environments/[env_name]/tests/`
+- Configuration in `rl_environments/[env_name]/config/`
+- Examples in `examples/`
+
+### Naming Conventions
+- Classes: PascalCase (e.g., `TicketRoutingEnv`)
+- Functions/Methods: snake_case (e.g., `generate_tickets()`)
+- Private methods: prefix with underscore (e.g., `_validate_action()`)
+- Constants: UPPER_SNAKE_CASE (e.g., `MAX_QUEUE_SIZE`)
+- Type aliases: PascalCase (e.g., `ObservationType`)
+
+### Component Design Patterns
+- **Strategy Pattern**: For pluggable reward functions
+- **Observer Pattern**: For metrics collection
+- **Dependency Injection**: For configuration
+- **Factory Pattern**: For environment creation
+- **Template Method**: For base environment class
+
+### Performance Guidelines
+- Use NumPy vectorization for batch operations
+- Prefer `collections.deque` for queues (O(1) operations)
+- Lazy evaluation for expensive metrics
+- Profile with `cProfile` for bottlenecks
+- Target < 1ms per environment step
+
+### Data Models
+- Use `@dataclass` for data structures
+- Use `IntEnum` for categorical values
+- NumPy arrays for numerical data
+- Type hints for all fields
+- Immutable where possible (`frozen=True`)
+
+### Configuration
+- YAML for environment configuration
+- Dataclass-based config objects
+- Validation at initialization
+- Default values for all parameters
+- Clear error messages for invalid configs
+
+### Error Handling
+- Raise `ValueError` for invalid inputs
+- Raise `RuntimeError` for state errors
+- Descriptive error messages
+- Validate early (fail fast)
+- Document exceptions in docstrings
+
+### Documentation
+- README.md with quick start guide
+- Docstrings for all public APIs
+- Type hints as primary documentation
+- Example scripts demonstrating usage
+- Architecture diagrams (Mermaid format)
+
+### Git Workflow
+- Meaningful commit messages
+- Feature branches (feature/*)
+- Test before commit
+- No direct commits to main
+- PR reviews required
+
+### AI Assistant Guidelines
+- Follow AI-TDD methodology (idea → prd → design → plan → implementation)
+- Create comprehensive documentation before code
+- Use Mermaid for all diagrams
+- Keep documents under 300 lines
+- Test-driven development approach
+- Incremental implementation (bottom-up)
+
+### Testing Commands
+```bash
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=rl_environments --cov-report=html
+
+# Type checking
+mypy rl_environments --strict
+
+# Format code
+black rl_environments
+
+# Lint code
+ruff check rl_environments
+
+# Run specific test file
+pytest rl_environments/ticket_routing/tests/test_environment.py -v
+```
+
+### Common Tasks
+```bash
+# Create new environment
+mkdir -p rl_environments/new_env/{core,utils,tests,config}
+
+# Run random policy baseline
+python examples/random_policy.py
+
+# Train with SB3
+python examples/train_ppo.py
+
+# Validate environment
+python -c "from stable_baselines3.common.env_checker import check_env; from rl_environments.ticket_routing import TicketRoutingEnv; check_env(TicketRoutingEnv())"
+```
+
+### Dependencies Management
+- requirements.txt for core dependencies
+- requirements-dev.txt for development tools
+- Pin major versions, flexible minor versions
+- Regular dependency updates
+- Security scanning with pip-audit
+
+### Performance Benchmarks
+- Environment step time: < 1ms
+- Memory per instance: < 100MB
+- Vectorization: 4+ parallel environments
+- Training speed: 1000+ steps/second
+- Deterministic seeding: exact reproducibility
+
+### Code Review Checklist
+- [ ] Type hints complete
+- [ ] Docstrings present
+- [ ] Tests added/updated
+- [ ] Test coverage >= 90%
+- [ ] mypy passes
+- [ ] black formatted
+- [ ] ruff passes
+- [ ] Gymnasium compliance verified
+- [ ] Performance benchmarks met
+- [ ] Documentation updated
+
+### Known Patterns to Follow
+1. **Component Initialization**: Pass config object, not individual parameters
+2. **State Management**: Centralized in StateManager component
+3. **Random Number Generation**: Use NumPy's Generator, not legacy RandomState
+4. **Observation Building**: Separate method (_build_observation())
+5. **Action Validation**: Validate in step() before processing
+6. **Metrics Collection**: Observer pattern, don't couple to environment
+7. **Configuration Loading**: from_yaml() class method pattern
+
+### Common Pitfalls to Avoid
+- Don't use gym.spaces.Dict with nested dicts (flatten or use proper structure)
+- Don't modify observation space after initialization
+- Don't forget to validate observations match declared space
+- Don't use mutable default arguments
+- Don't skip seeding in tests (causes flaky tests)
+- Don't hardcode paths (use pathlib)
+- Don't ignore type errors (fix them)
+- Don't skip Gymnasium compliance checks
+
+### RL-Specific Best Practices
+- Normalize observations when possible
+- Clip rewards to reasonable ranges
+- Log episode statistics
+- Track training metrics (TensorBoard)
+- Save checkpoints regularly
+- Compare against random baseline
+- Test with multiple RL algorithms
+- Validate trained policies
